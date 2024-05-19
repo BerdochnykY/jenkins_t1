@@ -1,0 +1,782 @@
+{
+	"info": {
+		"_postman_id": "e04d61a7-cd2e-4919-9a45-57cff314bbd9",
+		"name": "fileCollection",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "11089706"
+	},
+	"item": [
+		{
+			"name": "Signup Random User",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var code = pm.response.code",
+							"",
+							"if (code === 201) {",
+							"    var data_request = JSON.parse(pm.request.body.raw);",
+							"    var data_response = pm.response.json();",
+							"",
+							"    pm.environment.set(\"currentUserId\", data_response[\"data\"][\"userId\"]);",
+							"",
+							"    var schema_request = {",
+							"    \"type\": \"object\",",
+							"    \"properties\": {",
+							"        \"name\": {",
+							"        \"type\": \"string\",",
+							"        \"minLength\": 2,",
+							"        \"maxLength\": 20",
+							"        },",
+							"        \"lastName\": {",
+							"        \"type\": \"string\",",
+							"        \"minLength\": 2,",
+							"        \"maxLength\": 20",
+							"        },",
+							"        \"email\": {",
+							"        \"type\": \"string\",",
+							"        \"format\": \"email\"",
+							"        },",
+							"        \"password\": {",
+							"        \"type\": \"string\"",
+							"        },",
+							"        \"repeatPassword\": {",
+							"        \"type\": \"string\"",
+							"        }",
+							"    },",
+							"    \"required\": [",
+							"        \"name\",",
+							"        \"lastName\",",
+							"        \"email\",",
+							"        \"password\",",
+							"        \"repeatPassword\"",
+							"    ]",
+							"    };",
+							"",
+							"    var schema_response = {",
+							"    \"type\": \"object\",",
+							"    \"properties\": {",
+							"        \"status\": {",
+							"        \"type\": \"string\"",
+							"        },",
+							"        \"data\": {",
+							"        \"type\": \"object\",",
+							"        \"properties\": {",
+							"            \"userId\": {",
+							"            \"type\": \"integer\"",
+							"            },",
+							"            \"photoFilename\": {",
+							"            \"type\": \"string\"",
+							"            },",
+							"            \"distanceUnits\": {",
+							"            \"type\": \"string\"",
+							"            },",
+							"            \"currency\": {",
+							"            \"type\": \"string\"",
+							"            }",
+							"        },",
+							"        \"required\": [",
+							"            \"userId\",",
+							"            \"photoFilename\",",
+							"            \"distanceUnits\",",
+							"            \"currency\"",
+							"        ]",
+							"        }",
+							"    },",
+							"    \"required\": [",
+							"        \"status\",",
+							"        \"data\"",
+							"    ]",
+							"    };",
+							"",
+							"",
+							"    pm.test('Schema request is valid', function () {",
+							"        pm.expect(tv4.validate(data_request, schema_request)).to.be.true;",
+							"    });",
+							"",
+							"    pm.test('Schema response is valid', function () {",
+							"        pm.expect(tv4.validate(data_response, schema_response)).to.be.true;",
+							"    });",
+							"",
+							"    var email_reg = /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/;",
+							"    pm.test(\"Email is valid\", function () {",
+							"        res = pm.expect(data_request[\"email\"]).to.match(email_reg);",
+							"        if (res) {",
+							"            pm.environment.set(\"currentUserEmail\", data_request[\"email\"]);",
+							"        }",
+							"    });",
+							"}",
+							"else {",
+							"    pm.test(\"Status code is 201\", function () {",
+							"        pm.response.to.have.status(201);",
+							"    });",
+							"}",
+							"",
+							"",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"var new_firstName = pm.variables.replaceIn(\"{{$randomFirstName}}\");",
+							"pm.environment.set(\"fileFirstName\", new_firstName);",
+							"",
+							"var new_lastName = pm.variables.replaceIn(\"{{$randomLastName}}\");",
+							"pm.environment.set(\"fileLastName\", new_lastName);",
+							"",
+							"var new_mail = pm.variables.replaceIn(\"{{$randomEmail}}\");",
+							"pm.environment.set(\"fileEmail\", new_mail);",
+							"",
+							"var new_pass = pm.variables.replaceIn(\"{{$randomPassword}}\");",
+							"pm.environment.set(\"myPassword\", new_pass);"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"name\": \"{{fileFirstName}}\",\n    \"lastName\": \"{{fileLastName}}\",\n    \"email\": \"{{fileEmail}}\",\n    \"password\": \"{{myPassword}}\",\n    \"repeatPassword\": \"{{myPassword}}\"\n}\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/auth/signup",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"auth",
+						"signup"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Profile user",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var schema = {",
+							"  \"type\": \"object\",",
+							"  \"properties\": {",
+							"    \"status\": {",
+							"      \"type\": \"string\"",
+							"    },",
+							"    \"data\": {",
+							"      \"type\": \"object\",",
+							"      \"properties\": {",
+							"        \"userId\": {",
+							"          \"type\": \"number\"",
+							"        },",
+							"        \"photoFilename\": {",
+							"          \"type\": \"string\"",
+							"        },",
+							"        \"name\": {",
+							"          \"type\": \"string\"",
+							"        },",
+							"        \"lastName\": {",
+							"          \"type\": \"string\"",
+							"        }",
+							"      },",
+							"      \"required\": [",
+							"        \"userId\",",
+							"        \"photoFilename\",",
+							"        \"name\",",
+							"        \"lastName\"",
+							"      ]",
+							"    }",
+							"  },",
+							"  \"required\": [",
+							"    \"status\",",
+							"    \"data\"",
+							"  ]",
+							"};",
+							"",
+							"var schema_error = {",
+							"  \"type\": \"object\",",
+							"  \"properties\": {",
+							"    \"status\": {",
+							"      \"type\": \"string\"",
+							"    },",
+							"    \"message\": {",
+							"      \"type\": \"string\"",
+							"    }",
+							"  },",
+							"  \"required\": [",
+							"    \"status\",",
+							"    \"message\"",
+							"  ]",
+							"};",
+							"",
+							"var data = pm.response.json();",
+							"var code = pm.response.code",
+							"",
+							"",
+							"if (code === 200) {",
+							"    pm.test('Authorized and schema is valid', function () {",
+							"    pm.expect(tv4.validate(data, schema)).to.be.true;",
+							"});",
+							"}",
+							"else if (code === 401) {",
+							"    pm.test('Unauthorized and schema is valid', function () {",
+							"    pm.expect(tv4.validate(data, schema_error)).to.be.true;",
+							"});",
+							"}"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/users/profile",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"users",
+						"profile"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Profile user Edit Random",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var schema_response = {",
+							"  \"type\": \"object\",",
+							"  \"properties\": {",
+							"    \"status\": {",
+							"      \"type\": \"string\"",
+							"    },",
+							"    \"data\": {",
+							"      \"type\": \"object\",",
+							"      \"properties\": {",
+							"        \"userId\": {",
+							"          \"type\": \"integer\"",
+							"        },",
+							"        \"photoFilename\": {",
+							"          \"type\": \"string\"",
+							"        },",
+							"        \"name\": {",
+							"          \"type\": \"string\"",
+							"        },",
+							"        \"lastName\": {",
+							"          \"type\": \"string\"",
+							"        },",
+							"        \"dateBirth\": {",
+							"          \"type\": \"string\"",
+							"        },",
+							"        \"country\": {",
+							"          \"type\": \"string\"",
+							"        }",
+							"      },",
+							"      \"required\": [",
+							"        \"userId\",",
+							"        \"photoFilename\",",
+							"        \"name\",",
+							"        \"lastName\",",
+							"        \"dateBirth\",",
+							"        \"country\"",
+							"      ]",
+							"    }",
+							"  },",
+							"  \"required\": [",
+							"    \"status\",",
+							"    \"data\"",
+							"  ]",
+							"};",
+							"",
+							"var data_request = JSON.parse(pm.request.body.raw);",
+							"var data_response = pm.response.json();",
+							"",
+							"pm.test('Schema is valid', function () {",
+							"    pm.expect(tv4.validate(data_response, schema_response)).to.be.true;",
+							"});",
+							"",
+							"pm.test(\"Дата має формат YYYY-MM-DD\", function() {",
+							"    var dateReg = /^\\d{4}-\\d{2}-\\d{2}/;",
+							"    var isValidDate = dateReg.test(data_response[\"data\"][\"dateBirth\"]);",
+							"    pm.expect(isValidDate).to.be.true;",
+							"});",
+							"",
+							"pm.test(\"Поле 'name' співпадає\", function() {",
+							"    pm.expect(data_request[\"name\"]).to.eql(data_response[\"data\"][\"name\"]);",
+							"});",
+							"",
+							"pm.test(\"Поле 'lastName' співпадає\", function() {",
+							"    pm.expect(data_request[\"lastName\"]).to.eql(data_response[\"data\"][\"lastName\"]);",
+							"});",
+							"",
+							"pm.test(\"Поле 'country' співпадає\", function() {",
+							"    pm.expect(data_request[\"country\"]).to.eql(data_response[\"data\"][\"country\"]);",
+							"});",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"photo\": \"user-{{currentUserId}}.jpg\", //На скільки розумію фото не змінюється\n    \"name\": \"{{$randomFirstName}}\",\n    \"lastName\": \"{{$randomLastName}}\",\n    \"dateBirth\": \"{{$randomDatePast}}\",\n    \"country\": \"{{$randomCountry}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/users/profile",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"users",
+						"profile"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Change Old Password",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"var new_pass = pm.variables.replaceIn(\"{{$randomPassword}}\");",
+							"pm.environment.set(\"myNewPassword\", new_pass);"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var data_response = pm.response.json();",
+							"var data_request = JSON.parse(pm.request.body.raw);",
+							"",
+							"var currentUserId = pm.variables.get(\"currentUserId\");",
+							"",
+							"pm.test(\"Поле 'UserId' співпадає з тим що було при реєстрації\", function() {",
+							"    pm.expect(data_response[\"data\"][\"userId\"]).to.eql(currentUserId);",
+							"});",
+							"",
+							"var new_pass = pm.environment.get(\"myNewPassword\");",
+							"",
+							"",
+							"if (data_response[\"status\"] === \"ok\") {",
+							"    pm.environment.set(\"passChanged\", 1);",
+							"    pm.environment.set(\"myPassword\", new_pass)",
+							"}",
+							"else {",
+							"    pm.environment.set(\"passChanged\", 0);",
+							"};"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"oldPassword\": \"{{myPassword}}\",\n  \"password\": \"{{myNewPassword}}\",\n  \"repeatPassword\": \"{{myNewPassword}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/users/password",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"users",
+						"password"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Logout",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/auth/logout",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"auth",
+						"logout"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Signin with vars",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var data_response = pm.response.json();",
+							"",
+							"var currentUserId = pm.variables.get(\"currentUserId\");",
+							"",
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Поле 'UserId' співпадає з тим що було при реєстрації\", function() {",
+							"    pm.expect(data_response[\"data\"][\"userId\"]).to.eql(currentUserId);",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"var flag = pm.environment.get(\"passChanged\");",
+							"var oldPass = pm.environment.get(\"myPassword\");",
+							"var newPass = pm.environment.get(\"myNewPassword\");",
+							"",
+							"if (flag === 1) {",
+							"    pm.environment.set(\"password\", newPass)",
+							"}",
+							"else {",
+							"    pm.environment.set(\"password\", oldPass)",
+							"}"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"email\": \"{{fileEmail}}\",\n  \"password\": \"{{password}}\",\n  \"remember\": false\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/auth/signin",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"auth",
+						"signin"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Cars add",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var data = pm.response.json()",
+							"",
+							"pm.test(\"Status code is 201\", function () {",
+							"    pm.response.to.have.status(201);",
+							"",
+							"    if (pm.response.to.have.status(201)) {",
+							"        pm.environment.set(\"newCarId\", data[\"data\"][\"id\"]);",
+							"        pm.environment.set(\"currentMileage\", data[\"data\"][\"initialMileage\"]);",
+							"    }",
+							"});",
+							"",
+							"pm.test(\"Поле 'carModelId' співпадає з тим що було при створенні\", function() {",
+							"    pm.expect(data[\"data\"][\"carModelId\"]).to.eql(1);",
+							"});",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"carBrandId\": 1,\n  \"carModelId\": 1,\n  \"mileage\": 15\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/cars",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"cars"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Add expenses for car 1",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"var currentMileage = pm.environment.get(\"currentMileage\")",
+							"",
+							"var new_mileage = currentMileage + 10",
+							"pm.environment.set(\"currentMileage\", new_mileage)",
+							"",
+							"var moment = require('moment');",
+							"pm.environment.set('currentdate', moment().format((\"YYYY-MM-DD\")));"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var data_response = pm.response.json();",
+							"",
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"mileage записаний корректно\", function() {",
+							"    pm.expect(data_response[\"data\"][\"mileage\"]).to.eql(pm.environment.get(\"currentMileage\"));",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"carId\": {{newCarId}},\n  \"reportedAt\": \"{{currentdate}}\",\n  \"mileage\": {{currentMileage}},\n  \"liters\": 10,\n  \"totalCost\": 50,\n  \"forceMileage\": false\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/expenses",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"expenses"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Add expenses for car 2",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"var currentMileage = pm.environment.get(\"currentMileage\")",
+							"",
+							"var new_mileage = currentMileage + 10",
+							"pm.environment.set(\"currentMileage\", new_mileage)",
+							"",
+							"var moment = require('moment');",
+							"pm.environment.set('currentdate', moment().format((\"YYYY-MM-DD\")));"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var data_response = pm.response.json();",
+							"",
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"mileage записаний корректно\", function() {",
+							"    pm.expect(data_response[\"data\"][\"mileage\"]).to.eql(pm.environment.get(\"currentMileage\"));",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"carId\": {{newCarId}},\n  \"reportedAt\": \"{{currentdate}}\",\n  \"mileage\": {{currentMileage}},\n  \"liters\": 10,\n  \"totalCost\": 50,\n  \"forceMileage\": false\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/expenses",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"expenses"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete User",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"",
+							"    if (pm.response.json()[\"status\"] === \"ok\") {",
+							"        pm.environment.unset(\"currentUserEmail\");",
+							"        pm.environment.unset(\"newCarId\");",
+							"        pm.environment.unset(\"currentUserId\");",
+							"        pm.environment.unset(\"myPassword\");",
+							"        pm.environment.unset(\"currentMileage\");",
+							"        pm.environment.unset(\"fileFirstName\");",
+							"        pm.environment.unset(\"fileLastName\");",
+							"        pm.environment.unset(\"currentdate\");",
+							"        pm.environment.unset(\"fileEmail\");",
+							"        pm.environment.unset(\"passChanged\");",
+							"        pm.environment.unset(\"password\");",
+							"        pm.environment.unset(\"myNewPassword\");",
+							"    }",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/users",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"users"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

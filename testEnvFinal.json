@@ -1,0 +1,15 @@
+{
+	"id": "2f54133b-8f89-48dd-a950-5122e90d07b2",
+	"name": "QAPro DEV",
+	"values": [
+		{
+			"key": "baseUrl",
+			"value": "https://qauto2.forstudy.space/api",
+			"type": "default",
+			"enabled": true
+		}
+	],
+	"_postman_variable_scope": "environment",
+	"_postman_exported_at": "2024-05-19T12:28:46.080Z",
+	"_postman_exported_using": "Postman/11.0.12"
+}
